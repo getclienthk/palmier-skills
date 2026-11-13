@@ -52,3 +52,22 @@ jobs:
         with:
           name: renders
           path: ${{ runner.temp }}/render/*.png
+
+  # Bare box: root user, no Chrome, no sudo, no runner niceties (closest to a fresh Codex Cloud container).
+  bare-container:
+    runs-on: ubuntu-24.04
+    container: node:22-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run cloud/setup.sh (must install Chromium itself)
+        env:
+          GC_SKILLS_DIR: ${{ github.workspace }}
+          GC_SKILLS_SKIP_CLONE: "1"
+        run: |
+          command -v google-chrome || echo "no system chrome (expected)"
+          bash cloud/setup.sh
+      - name: Clone-from-GitHub path (what Codex Cloud will actually run)
+        env:
+          GC_SKILLS_REF: ${{ github.ref_name }}
+          GC_SKILLS_DIR: /root/gc-skills-clone
+        run: bash cloud/setup.sh
