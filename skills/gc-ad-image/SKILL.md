@@ -1,9 +1,23 @@
 ---
 name: gc-ad-image
-description: Make Get Client ad images (Meta feed 4:5 / 1:1, Story 9:16), thumbnails (YouTube 16:9, webinar/replay covers) and graphic cards / posters (webinar poster, WhatsApp Community poster, reply or poll card "覆 1/2/3") that don't look AI-generated. Writes the photo prompt with a 9-slot realism formula, keeps real coaches' faces by editing their real photos instead of inventing them, renders through the local Codex $imagegen bridge, then sets ALL copy as real typography in HTML (never AI-drawn text, no AI "luxury gold" styling) and QA-checks it. Use whenever the user asks for 廣告圖, ad image, ad creative, static ad, thumbnail, 封面, cover, poster, 海報, 互動卡, 回覆卡, card, or says an image "looks too AI / 太 AI / 好假 / 塑膠感" — even if they never mention this skill.
+description: Get Client static ads end to end, without the AI look — writes the ad copy from a brief (angles, Cantonese Meta primary text / headline / on-image words, no AI-sounding phrases, Meta compliance), pairs each hook with a realistic 9-slot photo prompt, generates the picture (real coaches via edit mode on their real photo, never invented), then sets every word as real typography in HTML and QA-checks it. Also thumbnails (YouTube / webinar covers) and graphic cards / posters (webinar or WhatsApp Community poster, reply card "覆 1/2/3"). Use whenever the user asks for 寫廣告＋出圖, 廣告文案＋圖, static ad, 廣告圖, ad image, ad creative, thumbnail, 封面, cover, poster, 海報, 互動卡, 回覆卡, card, or says an image "looks too AI / 太 AI / 好假 / 塑膠感" — even if they never mention this skill. Not for copy-only video scripts.
 ---
 
-# GC Ad Image & Thumbnail
+# GC Static Ad: write → prompt → picture
+
+The pipeline, in order. Start at the first stage the user hasn't done yet:
+
+| Stage | What | Where |
+|---|---|---|
+| **A. Write** | brief → angles → Meta copy + on-image words → concept cards → user picks | `references/ad-writing.md` |
+| **B. Prompt** | hook type → picture pattern → 9-slot prompt (edit mode for real coaches) | Steps 1–3 below |
+| **C. Picture + type** | generate one job at a time → set every word in HTML → QA → deliver | Steps 4–6 below |
+
+- From a brief or an offer ("幫我寫個廣告", "出三個 ad") → start at **A**. Read `references/ad-writing.md` first.
+- Copy already written / a reference ad to copy (`ad-modifier`) → A3–A7 only (AI-tells, compliance, cards).
+- Just a picture, thumbnail or poster with the words given → skip A, start at Step 0.
+- Copy only, no image (video scripts, webinar ads) → this isn't the skill: use `webinar-ads-generator-v2` or
+  `ad-modifier`.
 
 Adapted from Palmier's `ugc-photo-prompts` skill (Apache-2.0, see "Credits" at the bottom).
 The prompt method is theirs; the Palmier Pro tool calls were replaced with the local
@@ -60,7 +74,7 @@ isn't one of the presets (e.g. 1254×1254, 1024×1024) almost always means this 
 | Story / Reels ad | 1080×1920 | `story` | bottom (keep the top 250px and bottom 340px clear of key content: platform UI covers them) |
 | YouTube / webinar thumbnail | 1280×720 | `thumb` | left half; subject on the right |
 
-Also collect, asking once in a single message only for what's missing:
+Also collect (if Stage A ran, you already have all of this), asking once in a single message only for what's missing:
 - **Which coach / project**, and a real photo of them (Drive, the user's upload, or the project's photo folder).
   If the client has a brand config (`brand-configs` skill), load it.
 - **The one message**: the offer / hook / webinar topic, and any date, time or price that must appear.
@@ -68,7 +82,11 @@ Also collect, asking once in a single message only for what's missing:
 
 ## Step 1 — Concept before prompt
 
-**Ads.** Each variant = one real fact about the offer or one real customer situation, turned into one
+**Ads from Stage A.** The concept cards already say the hook type and the picture; use the A6 table to turn
+the hook type into the scene, then go to Step 2. The on-image words come from the card, never from a new
+idea at this step.
+
+**Ads without Stage A.** Each variant = one real fact about the offer or one real customer situation, turned into one
 moment the viewer gets at a glance (a coach mid-explanation at a whiteboard; a student's laptop showing the
 Zoom class at the kitchen table at night). Vary the *idea* across variants, not just the colour.
 
@@ -235,8 +253,20 @@ Look at every final image yourself (Read the PNG), and check:
 - **Story safe zones**: nothing important under the platform UI areas.
 
 Reroll only the failing slot (append the realism add-on, change the light, swap the incidental detail);
-don't start over. Then deliver: final PNGs + the prompt used for each + what was checked, and wait for the
-user to pick before making size variants.
+don't start over. Then deliver, per concept: the final PNG, its copy fields from the card (primary text,
+headline, description, CTA button — ready to paste into Ads Manager), the prompt used, and what was checked.
+Update `concepts.md` with the PNG paths. Wait for the user to pick before making size variants or
+lock-one-half variations (`references/ad-writing.md` A8).
+
+## Direct-response ad hierarchy
+
+When the user asks to make a banner, poster, or image "more attractive as an ad," build a direct-response layout, not just a more decorative background. Keep the user's requested aspect ratio and one primary action.
+
+- Make the offer or main benefit the largest text. Keep the event name and real event logo secondary; use the supplied logo asset as an image, never redraw it. If no logo file is available, use a plain typed wordmark and say it is a placeholder.
+- Use one short supporting line and one clear CTA button. Use only claims and CTA wording supported by the user's brief; don't invent free access, scarcity, results, or guarantees.
+- For a coach-led 16:9 consultation banner, a useful starting layout is copy on the left and the real coach on the right, engaged in a consultation scene. Blend the photo into a textured, context-aware background rather than placing a cutout on a flat gradient.
+- Create attention with clear size contrast and a restrained accent color (for example, a vivid CTA against a dark campaign background). Keep the face, offer, and CTA easy to read at WhatsApp preview size; remove decorative elements that compete with them.
+- Put every word, logo, and button in the HTML layer per the hard rule above. Before delivery, verify exact copy, logo integrity, and small-size legibility.
 
 ## Graphic card / poster mode
 
@@ -299,6 +329,10 @@ type, hairline dividers) and save it to `templates/` once the user approves it.
 - Brand-safe, non-sexualised wardrobe and poses by default.
 
 ## Credits
+
+Stage A (`references/ad-writing.md`) adapts Corey Haines'
+[`ad-creative`](https://github.com/coreyhaines31/marketingskills) (MIT) and Rob Palmer's
+[`static-ad`](https://github.com/robpalmer99/claude-code-copywriting-skills) (CC BY 4.0); details in that file.
 
 The 9-slot formula, standing negative list, realism add-on and test notes come from
 [`ugc-photo-prompts`](https://github.com/palmier-io/palmier-skills/tree/main/skills/ugc-photo-prompts)
