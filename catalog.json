@@ -38,7 +38,7 @@
     "id": "gc-ad-image",
     "name": "gc-ad-image",
     "description": "Get Client static ads end to end, without the AI look — writes the ad copy from a brief (angles, Cantonese Meta primary text / headline / on-image words, no AI-sounding phrases, Meta compliance), pairs each hook with a realistic 9-slot photo prompt, generates the picture (real coaches via edit mode on their real photo, never invented), then sets every word as real typography in HTML and QA-checks it. Also thumbnails (YouTube / webinar covers) and graphic cards / posters (webinar or WhatsApp Community poster, reply card \"覆 1/2/3\"). Use whenever the user asks for 寫廣告＋出圖, 廣告文案＋圖, static ad, 廣告圖, ad image, ad creative, thumbnail, 封面, cover, poster, 海報, 互動卡, 回覆卡, card, or says an image \"looks too AI / 太 AI / 好假 / 塑膠感\" — even if they never mention this skill. Not for copy-only video scripts.",
-    "sha": "c9bfe845068c",
+    "sha": "48205cde7e0f",
     "path": "skills/gc-ad-image/SKILL.md"
   },
   {
