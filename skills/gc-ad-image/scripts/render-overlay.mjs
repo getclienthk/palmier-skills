@@ -25,6 +25,7 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
+import { findChrome, headlessArgs } from "./find-chrome.mjs";
 
 const PRESETS = {
   thumb: { width: 1280, height: 720, layout: "left" },
@@ -32,12 +33,6 @@ const PRESETS = {
   "ad-1x1": { width: 1080, height: 1080, layout: "bottom" },
   story: { width: 1080, height: 1920, layout: "bottom" },
 };
-
-const CHROME_CANDIDATES = [
-  process.env.CHROME_PATH,
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  "/Applications/Chromium.app/Contents/MacOS/Chromium",
-].filter(Boolean);
 
 function die(msg) {
   console.error(`render-overlay: ${msg}`);
@@ -55,7 +50,7 @@ const H = spec.height || preset.height;
 const layout = spec.layout || preset.layout;
 if (!spec.background || !existsSync(spec.background)) die(`background not found: ${spec.background}`);
 if (!spec.output) die("spec.output is required");
-const chrome = CHROME_CANDIDATES.find((p) => existsSync(p));
+const chrome = findChrome();
 if (!chrome) die("Chrome not found; set CHROME_PATH");
 
 const esc = (s) =>
@@ -90,7 +85,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   .bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:${esc(spec.focus || "50% 50%")}; }
   .scrim { position:absolute; inset:0; background:${scrim}; }
   .box { position:absolute; display:flex; flex-direction:column; gap:${Math.round(pad * 0.35)}px; ${boxPos} }
-  .text { font-family:"PingFang HK","PingFang TC","Hiragino Sans GB","Heiti TC","Helvetica Neue",sans-serif; color:var(--white); }
+  .text { font-family:"PingFang HK","PingFang TC","Hiragino Sans GB","Heiti TC","Noto Sans CJK TC","Noto Sans TC","Helvetica Neue","Noto Sans",sans-serif; color:var(--white); }
   .badge { align-self:flex-start; font-size:${Math.round(subSize * 0.9)}px; font-weight:700; padding:.25em .7em; border-radius:999px; background:var(--white); color:var(--black); }
   .head { word-break:keep-all; overflow-wrap:normal; font-size:${headSize}px; font-weight:900; line-height:1.12; letter-spacing:-.01em; text-shadow:0 4px 18px rgba(0,0,0,.45); }
   .hl { white-space:nowrap; background:var(--yellow); color:var(--black); padding:0 .12em; box-decoration-break:clone; -webkit-box-decoration-break:clone; text-shadow:none; }
@@ -120,10 +115,6 @@ const dir = mkdtempSync(join(tmpdir(), "gc-overlay-"));
 const htmlPath = join(dir, "overlay.html");
 writeFileSync(htmlPath, html);
 const out = resolve(spec.output);
-execFileSync(chrome, [
-  "--headless=new", "--disable-gpu", "--hide-scrollbars", "--allow-file-access-from-files",
-  "--force-device-scale-factor=1", `--window-size=${W},${H}`, `--screenshot=${out}`,
-  "--virtual-time-budget=3000", pathToFileURL(htmlPath).href,
-], { stdio: ["ignore", "ignore", "pipe"] });
+execFileSync(chrome, headlessArgs(W, H, out, pathToFileURL(htmlPath).href), { stdio: ["ignore", "ignore", "pipe"] });
 if (!existsSync(out)) die("Chrome did not write the screenshot");
 console.log(JSON.stringify({ output: out, width: W, height: H, layout, html: htmlPath }));

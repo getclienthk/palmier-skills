@@ -21,6 +21,22 @@ Codex `$imagegen` bridge, and the coach-photo, text-overlay and thumbnail rules 
    **Fix: the 9-slot formula** (Step 2) — realism comes from specific physical detail, never from the
    words "realistic", "8k" or "cinematic".
 
+## Where you're running — check first
+
+Run `uname -s` once.
+
+| | GC Mac (`Darwin`) | Codex Cloud / Linux (`Linux`) |
+|---|---|---|
+| Job folder | `~/Desktop/GetClient/work/gc-ad-image/<yyyy-mm-dd>-<slug>/` | `./gc-ad-image-output/<yyyy-mm-dd>-<slug>/` in the workspace |
+| Generating pictures | the local `$imagegen` bridge (Step 4) | your own built-in image generation tool; save the result into the job folder. Same rules: no text in the picture, one job at a time |
+| Rendering type | `node <skill>/scripts/render-*.mjs` (finds Chrome automatically) | same command (finds the Chromium installed by `cloud/setup.sh`) |
+| Chinese serif / sans | `Songti TC` / `PingFang HK` | `Noto Serif CJK TC` / `Noto Sans CJK TC` (already in every font stack as fallback) |
+| Photos / logos | local files the user points to | files the user attaches or that are in the repo; ask for them, never invent a face or logo |
+
+If a render script says "Chrome not found" in the cloud, the environment's setup script did not run:
+tell the user to add `cloud/setup.sh` to the environment (see the repo README), don't try to work around it.
+Delivering: give the final PNG paths (cloud: they are in the workspace, so the user can download them).
+
 ## Two modes — pick first
 
 - **Photo ad / thumbnail** — the picture is the message (a scene, a face, a moment). Steps 0–6 below.
@@ -147,7 +163,13 @@ light/shadow contrast. What doesn't: crops. Check every slot against the actual 
 - **Product or course material** (book, workbook, app screen): pass it as the edit source or composite the
   real asset in the overlay step. Never let the model invent the product.
 
-## Step 4 — Generate through the local bridge
+## Step 4 — Generate the picture
+
+**Codex Cloud / Linux:** use your built-in image generation tool (edit mode with the real photo when the
+person must appear, otherwise generate), save the PNG into the job folder, then continue at Step 5.
+Everything below in this step is for the GC Mac.
+
+**GC Mac — the local bridge:**
 
 The bridge is `~/Desktop/GetClient/ig-routines/imagegen-server.py` (an MCP server wrapping `codex exec`
 `$imagegen`; config in `ig-routines/mcp-imagegen.json`).
@@ -171,7 +193,7 @@ The bridge is `~/Desktop/GetClient/ig-routines/imagegen-server.py` (an MCP serve
 
 ## Step 5 — Set the copy as real type
 
-Never ask the image model for words. Write a spec and run the renderer:
+Never ask the image model for words. Write a spec (absolute paths into your job folder) and run the renderer:
 
 ```json
 {
@@ -229,7 +251,7 @@ Workflow:
 1. **Copy only from the user's text.** Pull the title, one hook line, a short lead, 2–4 points and the
    date/time out of what they pasted. Don't invent taglines, translations of the programme name, prices or
    claims. If something is missing (date, time, CTA), ask. Check the weekday for any date you print.
-2. **Make a job folder** (`~/Desktop/GetClient/work/gc-ad-image/<yyyy-mm-dd>-<slug>/`), copy the template
+2. **Make a job folder** (see "Where you're running"), copy the template
    and the coach photo into it under the name the template expects (`photo.jpg` / `photo.png`).
 3. **Blend the photo; never paste a cut-out on a flat gradient.** Sample the photo's own backdrop colours
    (top / middle / bottom with PIL `getpixel`) and use them as the page background, then fade the photo's
@@ -237,8 +259,10 @@ Workflow:
    of the page so the light makes sense.
 4. **Colour.** Brand colours from the client's brand config. Take the accent from a real object in the
    photo (a leather chair, a jacket, a prop) or the brand; use it flat. Cream/off-white for text on dark.
-5. **Type.** Fonts on this Mac: `Songti TC` (Chinese serif, headlines), `PingFang HK` (Chinese sans, body),
-   `Didot` / `Bodoni 72` / `Baskerville` (English serif titles), `Helvetica Neue`. Max two families.
+5. **Type.** Mac: `Songti TC` (Chinese serif, headlines), `PingFang HK` (Chinese sans, body),
+   `Didot` / `Bodoni 72` / `Baskerville` (English serif titles), `Helvetica Neue`. Cloud/Linux: the
+   templates fall back to `Noto Serif CJK TC` / `Noto Sans CJK TC` / `Noto Serif` / `Noto Sans`; when you
+   add a font-family, always end it with the matching Noto fallback. Max two families.
    Control every line break with `<br>` and `white-space:nowrap` on headlines — a single orphan character
    on its own line ("綁在一 / 起？") is a fail.
 6. **Texture.** Keep the SVG grain layer (opacity .12–.18). Real paper/fabric texture is fine; a perfectly
