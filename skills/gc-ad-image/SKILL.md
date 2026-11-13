@@ -1,6 +1,6 @@
 ---
 name: gc-ad-image
-description: Make Get Client ad images (Meta feed 4:5 / 1:1, Story 9:16) and thumbnails (YouTube 16:9, webinar/replay covers) that don't look AI-generated. Writes the photo prompt with a 9-slot realism formula, keeps real coaches' faces by editing their real photos instead of inventing them, renders the image through the local Codex $imagegen bridge, then sets all copy as real typography over the photo (never AI-drawn text) and QA-checks it, including a 120px thumbnail test. Use whenever the user asks for 廣告圖, ad image, ad creative, static ad, thumbnail, 封面, cover, YouTube 封面, webinar 封面, or says an image "looks too AI / 太 AI / 好假 / 塑膠感" — even if they never mention this skill.
+description: Make Get Client ad images (Meta feed 4:5 / 1:1, Story 9:16), thumbnails (YouTube 16:9, webinar/replay covers) and graphic cards / posters (webinar poster, WhatsApp Community poster, reply or poll card "覆 1/2/3") that don't look AI-generated. Writes the photo prompt with a 9-slot realism formula, keeps real coaches' faces by editing their real photos instead of inventing them, renders through the local Codex $imagegen bridge, then sets ALL copy as real typography in HTML (never AI-drawn text, no AI "luxury gold" styling) and QA-checks it. Use whenever the user asks for 廣告圖, ad image, ad creative, static ad, thumbnail, 封面, cover, poster, 海報, 互動卡, 回覆卡, card, or says an image "looks too AI / 太 AI / 好假 / 塑膠感" — even if they never mention this skill.
 ---
 
 # GC Ad Image & Thumbnail
@@ -20,6 +20,20 @@ Codex `$imagegen` bridge, and the coach-photo, text-overlay and thumbnail rules 
 3. **Polish.** Symmetric faces, studio light, empty perfect rooms, golden bokeh.
    **Fix: the 9-slot formula** (Step 2) — realism comes from specific physical detail, never from the
    words "realistic", "8k" or "cinematic".
+
+## Two modes — pick first
+
+- **Photo ad / thumbnail** — the picture is the message (a scene, a face, a moment). Steps 0–6 below.
+- **Graphic card / poster** — the words are the message (webinar poster, WhatsApp Community poster,
+  reply/poll card, event info card). Go to **"Graphic card / poster mode"** below. Do NOT ask the image
+  model to design the card: it produces the AI "luxury" template every time (see the AI design tells).
+
+## Hard rule for both modes
+
+**Every visible word, number, logo and button is HTML, rendered by `scripts/render-overlay.mjs` or
+`scripts/render-html.mjs`.** The image model only ever makes the picture, with no text in it. If an image
+has AI-drawn text in it, it is not done — rebuild the text layer. A quick check: an output at a size that
+isn't one of the presets (e.g. 1254×1254, 1024×1024) almost always means this rule was skipped.
 
 ## Step 0 — Pin the deliverable
 
@@ -201,6 +215,56 @@ Look at every final image yourself (Read the PNG), and check:
 Reroll only the failing slot (append the realism add-on, change the light, swap the incidental detail);
 don't start over. Then deliver: final PNGs + the prompt used for each + what was checked, and wait for the
 user to pick before making size variants.
+
+## Graphic card / poster mode
+
+Two proven templates live in `templates/` (each has its own how-to comment at the top):
+
+| Template | Use for | Layout |
+|---|---|---|
+| `templates/event-poster.html` | webinar / event / WhatsApp Community poster | coach on the right blending into the backdrop; kicker, title, hook, 1-line lead, 3 short points, date + time + CTA on the left |
+| `templates/reply-card.html` | reply / poll card ("覆 1/2/3"), post-event follow-up | person on the left fading into the brand colour; brand mark, headline, 2–4 numbered options, CTA |
+
+Workflow:
+1. **Copy only from the user's text.** Pull the title, one hook line, a short lead, 2–4 points and the
+   date/time out of what they pasted. Don't invent taglines, translations of the programme name, prices or
+   claims. If something is missing (date, time, CTA), ask. Check the weekday for any date you print.
+2. **Make a job folder** (`~/Desktop/GetClient/work/gc-ad-image/<yyyy-mm-dd>-<slug>/`), copy the template
+   and the coach photo into it under the name the template expects (`photo.jpg` / `photo.png`).
+3. **Blend the photo; never paste a cut-out on a flat gradient.** Sample the photo's own backdrop colours
+   (top / middle / bottom with PIL `getpixel`) and use them as the page background, then fade the photo's
+   inner edge with a CSS mask. If the photo has a strong key light, add a soft radial light on that side
+   of the page so the light makes sense.
+4. **Colour.** Brand colours from the client's brand config. Take the accent from a real object in the
+   photo (a leather chair, a jacket, a prop) or the brand; use it flat. Cream/off-white for text on dark.
+5. **Type.** Fonts on this Mac: `Songti TC` (Chinese serif, headlines), `PingFang HK` (Chinese sans, body),
+   `Didot` / `Bodoni 72` / `Baskerville` (English serif titles), `Helvetica Neue`. Max two families.
+   Control every line break with `<br>` and `white-space:nowrap` on headlines — a single orphan character
+   on its own line ("綁在一 / 起？") is a fail.
+6. **Texture.** Keep the SVG grain layer (opacity .12–.18). Real paper/fabric texture is fine; a perfectly
+   smooth gradient is not.
+7. **Logo.** The client's real logo file as an `<img>`. If you don't have it, a plain typed wordmark as a
+   placeholder and say so — never an AI-redrawn logo.
+8. **Render** with `node scripts/render-html.mjs page.html out.png 1080 1080`, Read the PNG, fix, repeat.
+9. **QA** with the AI design tells below plus Step 6's text checks, then deliver the PNG + a short list of
+   what's real vs placeholder.
+
+If a new layout is needed, build it in the same spirit (one photo, one accent, lots of space, left-aligned
+type, hairline dividers) and save it to `templates/` once the user approves it.
+
+## AI design tells (reject on sight)
+
+- Metallic gold gradient text, embossed / bevelled letters, outer glow on text.
+- Glowing divider lines, lens-flare sparkles, light streaks.
+- Glossy pill buttons with a highlight sheen; bevelled gold frames around every box.
+- Three identical boxed "cards" stacked in the centre; everything centred and symmetric.
+- A cut-out person on a flat, perfectly smooth gradient, lit from a direction the background doesn't have.
+- A logo redrawn in 3D gold instead of the real file.
+- "Luxury" defaults with no reason: black-and-gold, dark-green-and-gold, marble, velvet.
+- Stock poses: hands in pockets gazing into the distance, arms crossed smiling at camera.
+- Source photos that are themselves AI (file names like "ChatGPT 圖像…", "DALL·E…", "Gemini…"): the
+  layout can't fix their plastic skin and too-clean studio light. Tell the user and ask for a real photo
+  when realism matters. Also flag third-party logos in the photo (e.g. a laptop's Apple logo) for paid ads.
 
 ## Guardrails
 

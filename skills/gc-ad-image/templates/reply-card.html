@@ -1,0 +1,59 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!--
+  TEMPLATE: reply / poll card ("覆 1/2/3"), 1080x1080. Person on the left fading into the brand colour,
+  numbered options on the right. Proven on 2026-11-13 (影子交易法 reply card). To reuse:
+  1. Copy this file + the person photo (as photo.png) into the job folder.
+  2. :root colours = the client's brand; accent stays FLAT (no metallic gradient, glow or bevel).
+  3. .brand block: replace the typed "S" mark with the client's real logo file (<img>), never a redraw.
+  4. Replace headline / options / CTA with the user's words. Keep 2-4 options.
+  5. Render: node ../scripts/render-html.mjs reply-card.html card.png 1080 1080
+--><style>
+  :root{ --bg:#042D2A; --bg2:#0B3B35; --cream:#F3EBDD; --gold:#C9A961; --gold-dim:rgba(201,169,97,.45); }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1080px;overflow:hidden;background:var(--bg)}
+  .stage{position:relative;width:1080px;height:1080px;overflow:hidden;
+    background:
+      radial-gradient(900px 700px at 8% 38%, rgba(255,236,200,.10), transparent 60%),
+      radial-gradient(700px 600px at 95% 100%, rgba(0,0,0,.35), transparent 70%),
+      linear-gradient(160deg, var(--bg2), var(--bg) 55%);}
+  /* paper/film grain: real noise instead of a perfect gradient */
+  .grain{position:absolute;inset:-50%;width:200%;height:200%;opacity:.16;mix-blend-mode:overlay;pointer-events:none}
+  .person{position:absolute;left:-10px;bottom:0;height:1000px;
+    -webkit-mask-image:linear-gradient(90deg,#000 62%,transparent 98%),linear-gradient(180deg,transparent 0,#000 14%);
+    -webkit-mask-composite:source-in;mask-composite:intersect;
+    filter:contrast(1.02) saturate(.95)}
+  .col{position:absolute;left:470px;right:64px;top:70px;bottom:64px;display:flex;flex-direction:column}
+  .serif{font-family:"Songti TC","STSong","Noto Serif TC",serif}
+  .brand{display:flex;align-items:center;gap:14px;color:var(--gold)}
+  .brand .mark{width:46px;height:46px;border:1.5px solid var(--gold);border-radius:50%;display:grid;place-items:center;font:600 26px "Songti TC",serif}
+  .brand .name{font-size:24px;font-weight:700;letter-spacing:.32em}
+  .brand .en{font:500 11px/1 "Helvetica Neue",sans-serif;letter-spacing:.34em;color:var(--gold-dim);margin-top:6px}
+  .kicker{margin-top:74px;font:600 20px "PingFang HK",sans-serif;letter-spacing:.18em;color:var(--gold)}
+  h1{margin-top:14px;color:var(--cream);font-size:70px;font-weight:900;line-height:1.18;letter-spacing:.01em}
+  .rule{margin:34px 0 10px;width:72px;height:2px;background:var(--gold)}
+  ol{list-style:none}
+  li{display:grid;grid-template-columns:76px 1fr;align-items:baseline;padding:30px 0;border-bottom:1px solid rgba(243,235,221,.14)}
+  li .n{font:italic 400 66px/1 "Songti TC",serif;color:var(--gold)}
+  li .t{font:500 32px/1.35 "PingFang HK",sans-serif;color:var(--cream)}
+  li .t em{font-style:normal;font-family:"Helvetica Neue",sans-serif;font-weight:500}
+  .cta{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+  .cta .ask{font:700 40px "PingFang HK",sans-serif;color:var(--cream)}
+  .cta .ask b{color:var(--bg);background:var(--gold);padding:2px 12px;margin-right:8px;font-family:"Helvetica Neue",sans-serif}
+  .cta .who{font:500 20px "PingFang HK",sans-serif;color:var(--gold);text-align:right;line-height:1.5}
+</style></head><body><div class="stage">
+  <svg class="grain" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+  <img class="person" src="photo.png">
+  <div class="col">
+    <div class="brand"><div class="mark">S</div><div><div class="name serif">影子交易法</div><div class="en">SHADOW TRADING ACADEMY</div></div></div>
+    <div class="kicker">分享會後 · 一條問題</div>
+    <h1 class="serif">琴日分享會，<br>你最有感？</h1>
+    <div class="rule"></div>
+    <ol>
+      <li><span class="n">1</span><span class="t">想有人帶住我入場、離場</span></li>
+      <li><span class="n">2</span><span class="t">有興趣，想先了解清楚</span></li>
+      <li><span class="n">3</span><span class="t">想再睇一次 <em>Replay</em></span></li>
+    </ol>
+    <div class="cta"><div class="ask"><b>1／2／3</b>覆我</div><div class="who">Sammi 老師<br>親自同你傾</div></div>
+  </div>
+</div></body></html>

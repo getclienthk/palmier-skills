@@ -37,8 +37,8 @@
   {
     "id": "gc-ad-image",
     "name": "gc-ad-image",
-    "description": "Make Get Client ad images (Meta feed 4:5 / 1:1, Story 9:16) and thumbnails (YouTube 16:9, webinar/replay covers) that don't look AI-generated. Writes the photo prompt with a 9-slot realism formula, keeps real coaches' faces by editing their real photos instead of inventing them, renders the image through the local Codex $imagegen bridge, then sets all copy as real typography over the photo (never AI-drawn text) and QA-checks it, including a 120px thumbnail test. Use whenever the user asks for 廣告圖, ad image, ad creative, static ad, thumbnail, 封面, cover, YouTube 封面, webinar 封面, or says an image \"looks too AI / 太 AI / 好假 / 塑膠感\" — even if they never mention this skill.",
-    "sha": "b2a4651d27f2",
+    "description": "Make Get Client ad images (Meta feed 4:5 / 1:1, Story 9:16), thumbnails (YouTube 16:9, webinar/replay covers) and graphic cards / posters (webinar poster, WhatsApp Community poster, reply or poll card \"覆 1/2/3\") that don't look AI-generated. Writes the photo prompt with a 9-slot realism formula, keeps real coaches' faces by editing their real photos instead of inventing them, renders through the local Codex $imagegen bridge, then sets ALL copy as real typography in HTML (never AI-drawn text, no AI \"luxury gold\" styling) and QA-checks it. Use whenever the user asks for 廣告圖, ad image, ad creative, static ad, thumbnail, 封面, cover, poster, 海報, 互動卡, 回覆卡, card, or says an image \"looks too AI / 太 AI / 好假 / 塑膠感\" — even if they never mention this skill.",
+    "sha": "7e1dbd2b52f4",
     "path": "skills/gc-ad-image/SKILL.md"
   },
   {

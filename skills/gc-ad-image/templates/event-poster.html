@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!--
+  TEMPLATE: event / webinar poster, 1080x1080. Coach on the right, copy column on the left.
+  Proven on 2026-11-13 (Elite Closer Mastery poster). To reuse:
+  1. Copy this file + the coach photo (as photo.jpg) into the job folder.
+  2. .stage background: sample the photo's backdrop top / middle / bottom colours (PIL getpixel) so the
+     photo edge disappears. .photo left: slide until the face sits around x=650-850 and nothing important is cut.
+  3. --cognac (accent): pick from a real object in the photo (chair, clothing, prop), never gold gradient.
+  4. Replace the copy ONLY with words from the user's own text. Force line breaks with <br>; .hook is nowrap.
+  5. Render: node ../scripts/render-html.mjs event-poster.html poster.png 1080 1080
+--><style>
+  :root{ --cream:#F2ECE2; --muted:rgba(242,236,226,.72); --cognac:#C99466; --ink:#1E1D1B; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1080px;overflow:hidden}
+  /* same vertical grey as the studio backdrop, so the photo has no visible edge */
+  .stage{position:relative;width:1080px;height:1080px;overflow:hidden;
+    background:linear-gradient(180deg,#2F2F2F 0%,#51504E 52%,#65645F 100%)}
+  .photo{position:absolute;top:0;left:190px;height:1080px;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 30%);mask-image:linear-gradient(90deg,transparent 0,#000 30%)}
+  .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,17,16,.62) 0%,rgba(18,17,16,.38) 40%,rgba(18,17,16,0) 62%)}
+  .grain{position:absolute;inset:0;width:100%;height:100%;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+  .col{position:absolute;left:68px;top:66px;bottom:62px;width:500px;display:flex;flex-direction:column}
+  .sans{font-family:"PingFang HK","PingFang TC",sans-serif}
+  .kicker{display:flex;align-items:center;gap:12px;font:600 19px "PingFang HK",sans-serif;letter-spacing:.14em;color:var(--cognac)}
+  .kicker i{display:block;width:28px;height:1.5px;background:var(--cognac)}
+  .title{margin-top:22px;font-family:"Didot","Bodoni 72",serif;color:var(--cream);font-size:76px;line-height:.98;letter-spacing:-.01em}
+  .title small{display:block;margin-top:14px;font:500 20px "PingFang HK",sans-serif;letter-spacing:.3em;color:var(--muted)}
+  .hook{margin-top:44px;white-space:nowrap;font:700 38px/1.36 "PingFang HK",sans-serif;color:var(--cream)}
+  .hook u{text-decoration:none;background:linear-gradient(transparent 62%,rgba(201,148,102,.55) 62%)}
+  .lead{margin-top:18px;font:400 22px/1.6 "PingFang HK",sans-serif;color:var(--muted)}
+  .nots{margin-top:26px;display:flex;flex-direction:column;gap:10px}
+  .nots div{display:flex;align-items:center;gap:14px;font:600 24px "PingFang HK",sans-serif;color:var(--cream)}
+  .nots div::before{content:"";width:18px;height:1.5px;background:var(--cognac)}
+  .when{margin-top:auto;display:flex;align-items:stretch;gap:22px}
+  .date{font-family:"Didot","Bodoni 72",serif;color:var(--cream);font-size:66px;line-height:1}
+  .date span{display:block;margin-top:8px;font:500 18px "PingFang HK",sans-serif;letter-spacing:.2em;color:var(--muted)}
+  .bar{width:1.5px;background:rgba(242,236,226,.3)}
+  .time{display:flex;flex-direction:column;justify-content:space-between;padding:4px 0 2px}
+  .time b{font:700 30px "PingFang HK",sans-serif;color:var(--cream)}
+  .time em{font-style:normal;font:600 19px "PingFang HK",sans-serif;color:var(--ink);background:var(--cognac);padding:6px 14px;letter-spacing:.06em}
+</style></head><body><div class="stage">
+  <img class="photo" src="photo.jpg">
+  <div class="shade"></div>
+  <svg class="grain" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+  <div class="col">
+    <div class="kicker"><i></i>線上研討會 · 開放預留名額</div>
+    <div class="title">Elite Closer<br>Mastery</div>
+    <div class="hook">你的收入，<br>一直跟<u>「付出多少時間」</u><br>綁在一起？</div>
+    <div class="lead">其實有另一條路，很少人知道。<br>當天完整拆解給準時出席的朋友。</div>
+    <div class="nots"><div>不用創業</div><div>不用投資</div><div>不需要銷售經驗</div></div>
+    <div class="when">
+      <div class="date">23.11<span>2026 · 星期一</span></div>
+      <div class="bar"></div>
+      <div class="time"><b>晚上 8:00</b><em>立即預留名額 →</em></div>
+    </div>
+  </div>
+</div></body></html>
