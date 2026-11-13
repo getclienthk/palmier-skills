@@ -71,3 +71,10 @@ jobs:
           GC_SKILLS_REF: ${{ github.ref_name }}
           GC_SKILLS_DIR: /root/gc-skills-clone
         run: bash cloud/setup.sh
+      - name: Broken first browser falls through to a working one
+        env:
+          CHROME_PATH: /bin/false
+        run: |
+          D=$(mktemp -d); cp skills/gc-ad-image/templates/reply-card.html "$D/"
+          node skills/gc-ad-image/scripts/render-html.mjs "$D/reply-card.html" "$D/out.png" 1080 1080
+          test -s "$D/out.png"

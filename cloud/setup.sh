@@ -46,17 +46,31 @@ fi
 SKILL="$DEST/skills/gc-ad-image"
 [ -f "$SKILL/SKILL.md" ] || { log "ERROR: $SKILL/SKILL.md not found"; exit 1; }
 
-# 3. Headless Chromium
+# 3. Headless Chromium — judged by an actual screenshot, not by "a binary exists"
 command -v node >/dev/null 2>&1 || { log "ERROR: node is required (Codex universal image ships it)"; exit 1; }
-if node -e "import('$SKILL/scripts/find-chrome.mjs').then(m=>process.exit(m.findChrome()?0:1))"; then
-  log "browser already present"
+SMOKE_DIR="$(mktemp -d)"
+cp "$SKILL/templates/event-poster.html" "$SMOKE_DIR/"
+printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" width="965" height="965"><rect width="100%" height="100%" fill="#51504E"/><circle cx="530" cy="330" r="150" fill="#9b8a7a"/></svg>' > "$SMOKE_DIR/photo.svg"
+sed -i.bak 's|src="photo.jpg"|src="photo.svg"|' "$SMOKE_DIR/event-poster.html"
+smoke() { node "$SKILL/scripts/render-html.mjs" "$SMOKE_DIR/event-poster.html" "$SMOKE_DIR/smoke.png" 1080 1080; }
+
+if OUT="$(smoke 2>"$SMOKE_DIR/err.txt")"; then
+  log "browser OK: $OUT"
 else
-  log "installing Chromium via playwright@$PLAYWRIGHT_VERSION"
-  npx -y "playwright@$PLAYWRIGHT_VERSION" install --with-deps chromium >/dev/null
+  log "existing browser cannot render; installing Chromium via playwright@$PLAYWRIGHT_VERSION"
+  sed 's/^/    /' "$SMOKE_DIR/err.txt" | head -20
+  if npx -y "playwright@$PLAYWRIGHT_VERSION" install --with-deps chromium >/dev/null 2>"$SMOKE_DIR/pw.txt"; then
+    if OUT="$(smoke 2>"$SMOKE_DIR/err.txt")"; then
+      log "browser OK: $OUT"
+    else
+      log "ERROR: still cannot render after installing Playwright Chromium:"; cat "$SMOKE_DIR/err.txt"; exit 1
+    fi
+  else
+    log "ERROR: Playwright download failed. Allow these domains in the environment's internet access:"
+    log "  cdn.playwright.dev, playwright.download.prss.microsoft.com (and registry.npmjs.org for npx)"
+    tail -5 "$SMOKE_DIR/pw.txt"; exit 1
+  fi
 fi
-CHROME="$(node -e "import('$SKILL/scripts/find-chrome.mjs').then(m=>console.log(m.findChrome()||''))")"
-[ -n "$CHROME" ] || { log "ERROR: no Chrome/Chromium found after install"; exit 1; }
-log "browser: $CHROME"
 
 # 4. Link the skill where Codex looks for user skills
 for dir in "${CODEX_HOME:-$HOME/.codex}/skills" "$HOME/.agents/skills"; do
@@ -65,17 +79,6 @@ for dir in "${CODEX_HOME:-$HOME/.codex}/skills" "$HOME/.agents/skills"; do
   log "linked $dir/gc-ad-image"
 done
 
-# 5. Smoke test: render the poster template with a generated placeholder photo
-TMP="$(mktemp -d)"
-cp "$SKILL/templates/event-poster.html" "$TMP/"
-node -e "
-const fs=require('fs');
-const svg='<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"965\" height=\"965\"><rect width=\"100%\" height=\"100%\" fill=\"#51504E\"/><circle cx=\"530\" cy=\"330\" r=\"150\" fill=\"#9b8a7a\"/></svg>';
-fs.writeFileSync('$TMP/photo.svg', svg);
-"
-sed -i.bak 's|src="photo.jpg"|src="photo.svg"|' "$TMP/event-poster.html"
-node "$SKILL/scripts/render-html.mjs" "$TMP/event-poster.html" "$TMP/smoke.png" 1080 1080 >/dev/null
-[ -s "$TMP/smoke.png" ] || { log "ERROR: smoke render produced no PNG"; exit 1; }
-log "smoke render OK ($TMP/smoke.png)"
+# 5. Fonts visible to Chrome?
 fc-list :lang=zh family 2>/dev/null | grep -q -i 'noto' && log "CJK fonts OK" || log "WARN: no Noto CJK font visible to fontconfig"
 log "done"

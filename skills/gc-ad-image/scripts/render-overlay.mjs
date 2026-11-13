@@ -21,11 +21,10 @@
 // }
 
 import { readFileSync, writeFileSync, mkdtempSync, existsSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
-import { findChrome, headlessArgs } from "./find-chrome.mjs";
+import { screenshot } from "./find-chrome.mjs";
 
 const PRESETS = {
   thumb: { width: 1280, height: 720, layout: "left" },
@@ -50,8 +49,6 @@ const H = spec.height || preset.height;
 const layout = spec.layout || preset.layout;
 if (!spec.background || !existsSync(spec.background)) die(`background not found: ${spec.background}`);
 if (!spec.output) die("spec.output is required");
-const chrome = findChrome();
-if (!chrome) die("Chrome not found; set CHROME_PATH");
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -115,6 +112,9 @@ const dir = mkdtempSync(join(tmpdir(), "gc-overlay-"));
 const htmlPath = join(dir, "overlay.html");
 writeFileSync(htmlPath, html);
 const out = resolve(spec.output);
-execFileSync(chrome, headlessArgs(W, H, out, pathToFileURL(htmlPath).href), { stdio: ["ignore", "ignore", "pipe"] });
-if (!existsSync(out)) die("Chrome did not write the screenshot");
+try {
+  screenshot(pathToFileURL(htmlPath).href, out, W, H);
+} catch (e) {
+  die(String(e.message || e));
+}
 console.log(JSON.stringify({ output: out, width: W, height: H, layout, html: htmlPath }));
