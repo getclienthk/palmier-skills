@@ -35,6 +35,13 @@
     "path": "skills/create-skill-from-timeline/SKILL.md"
   },
   {
+    "id": "gc-ad-image",
+    "name": "gc-ad-image",
+    "description": "Make Get Client ad images (Meta feed 4:5 / 1:1, Story 9:16) and thumbnails (YouTube 16:9, webinar/replay covers) that don't look AI-generated. Writes the photo prompt with a 9-slot realism formula, keeps real coaches' faces by editing their real photos instead of inventing them, renders the image through the local Codex $imagegen bridge, then sets all copy as real typography over the photo (never AI-drawn text) and QA-checks it, including a 120px thumbnail test. Use whenever the user asks for 廣告圖, ad image, ad creative, static ad, thumbnail, 封面, cover, YouTube 封面, webinar 封面, or says an image \"looks too AI / 太 AI / 好假 / 塑膠感\" — even if they never mention this skill.",
+    "sha": "b2a4651d27f2",
+    "path": "skills/gc-ad-image/SKILL.md"
+  },
+  {
     "id": "motion-graphics",
     "name": "motion-graphics",
     "description": "Kinetic titles, stings, Apple-flat glass UI motion, and scripted product promos in Palmier Pro via MiniMax H3 Max (hailuo-03-max) — exact string locks, journey tempo (not metronome chops), sparse accents, switching product-native UI, and image/video refs including logos. Use for motion graphics, kinetic type, cold opens, bumpers, glassy UI explainers, Introducing product films, or agent demos. Prefer over video-prompting for readable on-screen type. Not for photoreal handheld camera feel (use cinematic-motion). Sibling: video-prompting for cinematic multimodal; caption-templates for timeline captions.",
